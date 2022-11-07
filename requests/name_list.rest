@@ -1,0 +1,7 @@
+GET http://localhost:3001/api/persons/999
+Content-Type: application/json
+
+{
+    "content": "Jeg er nice",
+    "important": true
+}
