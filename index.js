@@ -1,7 +1,26 @@
 const express = require('express')
 const app = express()
 
+
+const requestLogger = (request, response, next) => {
+    console.clear()
+    console.log('Method:', request.method)
+    console.log('Path:  ', request.path)
+    console.log('Body:  ', request.body)
+    console.log('---')
+    next()
+}
+
 app.use(express.json())
+app.use(requestLogger)
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+    console.log('unknown endpoint')
+}
+
+app.use(unknownEndpoint)
+
 
 let persons = [
     {
@@ -65,24 +84,23 @@ app.delete('/api/persons/:id', (request, response) => {
 })
 
 app.post('/api/persons', (request, response) => {
-    console.clear()
     const body = request.body
     console.log('body is: ', body)
     console.log('pølse')
-    
+
     const entry = {
         name: body.name,
         number: body.number,
-        id: Math.ceil(Math.random()*1000),
+        id: Math.ceil(Math.random() * 1000),
         timestamp: new Date
     }
-    if (!entry.name || !entry.number){
+    if (!entry.name || !entry.number) {
         response.status(400).json({
             error: 'content missing'
         })
     }
     console.log(persons.find(person => person.name === entry.name))
-    if (persons.find(person => person.name === entry.name)){
+    if (persons.find(person => person.name === entry.name)) {
         console.log('person already exists!')
         response.status(400).json({
             error: 'name already exists'
@@ -93,6 +111,7 @@ app.post('/api/persons', (request, response) => {
     }
 
 })
+
 
 const PORT = 3001
 app.listen(PORT, () => {
