@@ -1,7 +1,24 @@
-GET http://localhost:3001/api/persons/999
+# request oo bounds, should be 404
+GET http://localhost:3001/api/persons/995
+Content-Type: application/json
+
+###
+# request within bounds, should be 200
+GET http://localhost:3001/api/persons/4
+Content-Type: application/json
+
+###
+# delete request
+DELETE http://localhost:3001/api/persons/1
+Content-Type: application/json
+
+###
+# post new data
+POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-    "content": "Jeg er nice",
-    "important": true
+    "name": "Andreas R",
+    "number": "27 27 51 51"
 }
+
