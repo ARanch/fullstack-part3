@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 
 
+// middleware eksempel 1
 const requestLogger = (request, response, next) => {
     console.clear()
     console.log('Method:', request.method)
@@ -13,14 +14,6 @@ const requestLogger = (request, response, next) => {
 
 app.use(express.json())
 app.use(requestLogger)
-
-const unknownEndpoint = (request, response) => {
-    response.status(404).send({ error: 'unknown endpoint' })
-    console.log('unknown endpoint')
-}
-
-app.use(unknownEndpoint)
-
 
 let persons = [
     {
@@ -112,6 +105,15 @@ app.post('/api/persons', (request, response) => {
 
 })
 
+// middleware eksempel 2
+// fanger requests der ikke rammer en af vores routes ovf.^
+// og smider en 404 fejl
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+    console.log('unknown endpoint')
+}
+
+app.use(unknownEndpoint)
 
 const PORT = 3001
 app.listen(PORT, () => {
