@@ -18,13 +18,13 @@ POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-    "name": "Andreas R",
+    "name": "Andreas Roev",
     "number": "27 27 51 51"
 }
 
 ###
 # unknown enpoint
-POST http://localhost:3001/anus
+POST http://localhost:3001/noplace
 Content-Type: application/json
 
 {

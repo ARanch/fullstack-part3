@@ -1,6 +1,26 @@
 const express = require('express')
 const app = express()
+console.clear()
 
+// =============== MORGAN
+// https://github.com/expressjs/morgan#creating-new-tokens
+// app.use(morgan('tiny'))
+var morgan = require('morgan')
+// definition af custom token som gør det muligt at modtage "body" i et POST
+// request
+morgan.token('body', (req, res) => JSON.stringify(req.body))
+app.use(morgan(function (tokens, req, res) {
+    return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, 'content-length'), '-',
+        tokens['response-time'](req, res), 'ms',
+        tokens.body(req, res) // tilføjelse af body token til logning
+    ].join(' ')
+})
+)
+// ===============
 
 // middleware eksempel 1
 const requestLogger = (request, response, next) => {
@@ -13,7 +33,7 @@ const requestLogger = (request, response, next) => {
 }
 
 app.use(express.json())
-app.use(requestLogger)
+// app.use(requestLogger)
 
 let persons = [
     {
@@ -68,18 +88,13 @@ const findPerson = (request) => {
 }
 
 app.delete('/api/persons/:id', (request, response) => {
-    console.log(persons)
-    console.log('request parameter: ', request.params.id)
     const id = Number(request.params.id)
     persons = persons.filter(person => person.id !== id)
-    console.log(persons)
     response.status(204).end()
 })
 
 app.post('/api/persons', (request, response) => {
     const body = request.body
-    console.log('body is: ', body)
-    console.log('pølse')
 
     const entry = {
         name: body.name,
@@ -92,7 +107,6 @@ app.post('/api/persons', (request, response) => {
             error: 'content missing'
         })
     }
-    console.log(persons.find(person => person.name === entry.name))
     if (persons.find(person => person.name === entry.name)) {
         console.log('person already exists!')
         response.status(400).json({
