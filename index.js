@@ -13,6 +13,7 @@ app.use(express.static('build'))
 // https://github.com/expressjs/morgan#creating-new-tokens
 // app.use(morgan('tiny'))
 var morgan = require('morgan')
+const { watch } = require('fs')
 // definition af custom token som gør det muligt at modtage "body" i et POST
 // request
 morgan.token('body', (req, res) => JSON.stringify(req.body))
