@@ -9,11 +9,47 @@ app.use(cors())
 
 app.use(express.static('build'))
 
+// ==== 18/11/2022, 17.19  ==== MONGO DB definitions
+const mongoose = require('mongoose')
+// ==== 18/11/2022, 17.25  ==== REPLACEW WITH PROCESS VAR
+const password = 'oBVfLhfTtMSXJ6Au'
+// ==== 18/11/2022, 15.09  ==== you can create a new mongodb by replacing 'phonebook' btw. / and ?
+const url = `mongodb+srv://rango:${password}@cluster0.nvul2ly.mongodb.net/phonebook?retryWrites=true&w=majority`
+// ==== 18/11/2022, 15.06  ==== mongoose schema for forming note
+const personSchema = new mongoose.Schema({
+    name: String,
+    number: String,
+})
+// ==== 18/11/2022, 15.07  ==== mongoose model 'person'
+const Person = mongoose.model('Person', personSchema)
+
+app.get('/api/persons', (request, response) => {
+    console.log('finding entries...')
+    mongoose
+        .connect(url)
+        .then((result) => {
+            Person.find({}).then(result => {
+                result.forEach(note => {
+                    console.log(note.name, note.number)
+                })
+                mongoose.connection.close()
+            }).catch(err => {
+                console.log(err)
+            })
+        })
+})
+
+// ==== 18/11/2022, 17.26  ==== calling local json server if no DB is set up
+// app.get('/api/persons', (request, response) => {
+//     response.json(persons)
+// })
+
 // =============== MORGAN
 // https://github.com/expressjs/morgan#creating-new-tokens
 // app.use(morgan('tiny'))
 var morgan = require('morgan')
 const { watch } = require('fs')
+const { application } = require('express')
 // definition af custom token som gør det muligt at modtage "body" i et POST
 // request
 morgan.token('body', (req, res) => JSON.stringify(req.body))
@@ -67,11 +103,7 @@ let persons = [
 ]
 
 app.get('/', (request, response) => {
-        response.send('<h1>No static page found. Please build.</h1>')
-})
-
-app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    response.send('<h1>No static page found. Please build.</h1>')
 })
 
 app.get('/info', (request, response) => {
@@ -137,7 +169,7 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3001
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
