@@ -138,7 +138,7 @@ app.delete('/api/persons/:id', (request, response) => {
 app.post('/api/persons', (request, response) => {
     const body = request.body
     console.log(`POST made to /api/persons with ${request.body.name}
-    and ${request.body.number}`)
+    and ${request.body.phone}`)
     
     if (body.name === undefined) {
         return response.status(400).json({ error: 'content missing' })
@@ -146,7 +146,7 @@ app.post('/api/persons', (request, response) => {
     console.log('HALLÅ?')
     const person = new Person({
         name: body.name,
-        number: body.number,
+        phone: body.phone,
     })
 
     console.log('Person is:', person)
@@ -163,11 +163,11 @@ app.post('/api/persons', (request, response) => {
 
 //     const entry = {
 //         name: body.name,
-//         number: body.number,
+//         phone: body.phone,
 //         id: Math.ceil(Math.random() * 1000),
 //         timestamp: new Date
 //     }
-//     if (!entry.name || !entry.number) {
+//     if (!entry.name || !entry.phone) {
 //         response.status(400).json({
 //             error: 'content missing'
 //         })

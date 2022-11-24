@@ -1,5 +1,3 @@
-// ==== 24/11/2022, 21.02  ==== dotenv enables using env variables in .env file
-require('dotenv').config()
 // ========================================================
 // ==== 18/11/2022, 17.19  ==== MONGO DB definitions
 const mongoose = require('mongoose')
@@ -20,7 +18,7 @@ mongoose.connect(url)
 // ==== 18/11/2022, 15.06  ==== mongoose schema for forming note
 const personSchema = new mongoose.Schema({
     name: String,
-    number: String,
+    phone: String,
 })
 // ==== 23/11/2022, 20.23  ==== modified schema, removing mongo ID and version
 personSchema.set('toJSON', {
