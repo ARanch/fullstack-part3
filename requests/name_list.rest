@@ -4,7 +4,7 @@ Content-Type: application/json
 
 ###
 # request within bounds, should be 200
-GET http://localhost:3001/api/persons/4
+GET http://localhost:3001/api/persons/6377ada6454ba9a221ffd97a
 Content-Type: application/json
 
 ###

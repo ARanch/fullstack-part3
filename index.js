@@ -79,29 +79,6 @@ const requestLogger = (request, response, next) => {
 app.use(express.json())
 // app.use(requestLogger)
 
-let persons = [
-    {
-        "id": 1,
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": 2,
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": 3,
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": 4,
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-]
-
 app.get('/', (request, response) => {
     response.send('<h1>No static page found. Please build.</h1>')
 })
@@ -114,18 +91,21 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const person = findPerson(request)
-    if (person) {
-        response.json(person)
-    } else {
-        response.status(404).end()
-    }
-})
-
-const findPerson = (request) => {
-    const id = Number(request.params.id)
-    return person = persons.find(person => person.id === id)
-}
+    console.log(`Get made to /api/notes/${request.params.id}`)
+    Person.findById(request.params.id)
+      .then(person => {
+        if (person) {
+          response.json(person)
+        } else {
+          response.status(404).end()
+        }
+      })
+      .catch(error => {
+        console.log(error)
+        response.status(400).send({ error: 'malformatted id' })
+        console.error('error: malformatted id')
+      })
+  })
 
 app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
@@ -143,7 +123,6 @@ app.post('/api/persons', (request, response) => {
     if (body.name === undefined) {
         return response.status(400).json({ error: 'content missing' })
     }
-    console.log('HALLÅ?')
     const person = new Person({
         name: body.name,
         phone: body.phone,
