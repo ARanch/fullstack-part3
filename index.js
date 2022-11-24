@@ -1,7 +1,11 @@
+// ==== 24/11/2022, 21.02  ==== dotenv enables using env variables in .env file
+require('dotenv').config()
 const path = require('path')
 const express = require('express')
 const app = express()
 console.clear()
+const Person = require('./models/person')
+
 
 const cors = require('cors')
 app.use(cors())
@@ -9,35 +13,31 @@ app.use(cors())
 
 app.use(express.static('build'))
 
-// ==== 18/11/2022, 17.19  ==== MONGO DB definitions
-const mongoose = require('mongoose')
-// ==== 18/11/2022, 17.25  ==== REPLACEW WITH PROCESS VAR
-const password = 'oBVfLhfTtMSXJ6Au'
-// ==== 18/11/2022, 15.09  ==== you can create a new mongodb by replacing 'phonebook' btw. / and ?
-const url = `mongodb+srv://rango:${password}@cluster0.nvul2ly.mongodb.net/phonebook?retryWrites=true&w=majority`
-// ==== 18/11/2022, 15.06  ==== mongoose schema for forming note
-const personSchema = new mongoose.Schema({
-    name: String,
-    number: String,
-})
-// ==== 18/11/2022, 15.07  ==== mongoose model 'person'
-const Person = mongoose.model('Person', personSchema)
-
+// ==== 23/11/2022, 20.03  ==== get request to mongo DB p
 app.get('/api/persons', (request, response) => {
-    console.log('finding entries...')
-    mongoose
-        .connect(url)
-        .then((result) => {
-            Person.find({}).then(result => {
-                result.forEach(note => {
-                    console.log(note.name, note.number)
-                })
-                mongoose.connection.close()
-            }).catch(err => {
-                console.log(err)
-            })
-        })
+    console.log('GET made to /api/persons')
+    Person.find({}).then(persons => {
+        response.json(persons)
+    })
 })
+
+
+// ==== 23/11/2022, 20.07  ==== This also works, instead of connecting before
+// app.get('/api/persons', (request, response) => {
+//     console.log('finding entries...')
+//     mongoose
+//         .connect(url)
+//         .then((result) => {
+//             Person.find({}).then(result => {
+//                 result.forEach(note => {
+//                     console.log(note.name, note.number)
+//                 })
+//                 mongoose.connection.close()
+//             }).catch(err => {
+//                 console.log(err)
+//             })
+//         })
+// })
 
 // ==== 18/11/2022, 17.26  ==== calling local json server if no DB is set up
 // app.get('/api/persons', (request, response) => {
@@ -133,35 +133,61 @@ app.delete('/api/persons/:id', (request, response) => {
     response.status(204).end()
 })
 
+// ==== 24/11/2022, 21.37  ==== posting person, using mongoose model Person
+// i.e. constructor function for class "Person"
 app.post('/api/persons', (request, response) => {
     const body = request.body
-
-    const entry = {
+    console.log(`POST made to /api/persons with ${request.body.name}
+    and ${request.body.number}`)
+    
+    if (body.name === undefined) {
+        return response.status(400).json({ error: 'content missing' })
+    }
+    console.log('HALLÅ?')
+    const person = new Person({
         name: body.name,
         number: body.number,
-        id: Math.ceil(Math.random() * 1000),
-        timestamp: new Date
-    }
-    if (!entry.name || !entry.number) {
-        response.status(400).json({
-            error: 'content missing'
-        })
-    }
-    if (persons.find(person => person.name === entry.name)) {
-        console.log('person already exists!')
-        response.status(400).json({
-            error: 'name already exists'
-        })
-    } else {
-        persons = persons.concat(entry)
-        response.json(persons)
-    }
+    })
 
+    console.log('Person is:', person)
+
+    person.save().then(savedPerson => {
+        console.log('person saved...')
+        response.json(savedPerson)
+    })
 })
+
+// ==== 24/11/2022, 21.39  ==== app.post('/api/persons') Way of posting person entry before using mongoose
+// app.post('/api/persons', (request, response) => {
+//     const body = request.body
+
+//     const entry = {
+//         name: body.name,
+//         number: body.number,
+//         id: Math.ceil(Math.random() * 1000),
+//         timestamp: new Date
+//     }
+//     if (!entry.name || !entry.number) {
+//         response.status(400).json({
+//             error: 'content missing'
+//         })
+//     }
+//     if (persons.find(person => person.name === entry.name)) {
+//         console.log('person already exists!')
+//         response.status(400).json({
+//             error: 'name already exists'
+//         })
+//     } else {
+//         persons = persons.concat(entry)
+//         response.json(persons)
+//     }
+
+// })
 
 // middleware eksempel 2
 // fanger requests der ikke rammer en af vores routes ovf.^
 // og smider en 404 fejl
+
 const unknownEndpoint = (request, response) => {
     response.status(404).send({ error: 'unknown endpoint' })
     console.log('unknown endpoint')
