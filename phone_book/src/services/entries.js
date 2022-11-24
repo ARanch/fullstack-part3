@@ -10,7 +10,7 @@ const getEntries = () => {
     return request
 }
 
-const addEtry = (newObject) => {
+const addEntry = (newObject) => {
     console.log(`entry added with name: ${newObject.name} and phone ${newObject.phone}`)
     const request = axios
         .post(baseUrl, newObject)
@@ -34,7 +34,7 @@ console.log('updateEntry', person)
 
 export default {
     getEntries,
-    addEtry,
+    addEntry: addEntry,
     deleteEntry,
     updateEntry,
 }

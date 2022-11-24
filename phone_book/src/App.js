@@ -45,10 +45,10 @@ const App = () => {
 
   const saveName = (event) => {
     event.preventDefault()
-   const {duplicate, index} = checkDuplicates(persons, newName)
-   console.log('persons: ', persons)
-   console.log('newName: ', newName)
-   console.log('duplicate, index:', duplicate, index)
+    const { duplicate, index } = checkDuplicates(persons, newName)
+    console.log('persons: ', persons)
+    console.log('newName: ', newName)
+    console.log('duplicate, index:', duplicate, index)
     if (duplicate !== false) {
       console.log('Duplicate entry found: ', newName)
       if (window.confirm(`Add new phone number to ${newName}?`)) {
@@ -78,7 +78,7 @@ const App = () => {
     } else {
       console.log(`Adding ${newName} and ${newPhone}`)
       setPersons(persons.concat({ name: newName, phone: newPhone }))
-      entries.addEtry({
+      entries.addEntry({
         name: newName,
         phone: newPhone
       }).then(() => {
@@ -118,10 +118,10 @@ const App = () => {
         console.log('no diplicate found. Continue...')
         return true
       }
-      duplicate ? console.log('A duplicate was found, ',name) : console.log('No duplicates found')
+      duplicate ? console.log('A duplicate was found, ', name) : console.log('No duplicates found')
     }
     )
-    return {duplicate, index}
+    return { duplicate, index }
   }
   // breakout into: filter, input form, and phonebook list
   return (
