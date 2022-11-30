@@ -3,7 +3,7 @@ import axios from "axios"
 const baseUrl = '/api/persons'
 
 const getEntries = () => {
-    console.log('fetching entries... ANUS')
+    console.log('fetching entries...')
     const request = axios
         .get(baseUrl)
         .then((response) => response.data)

@@ -58,6 +58,7 @@ const App = () => {
           id: index
         }
         entries.updateEntry(index, updatedEntry).catch(error => {
+          console.log(error)
           setMessageType('overlayError')
           setMessage(`Information on ${newName} has already been removed from server!`)
         }) //inserts new phone number at index corresponding to duplicate

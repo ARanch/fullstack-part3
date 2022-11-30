@@ -10,7 +10,17 @@ const Person = require('./models/person')
 const cors = require('cors')
 app.use(cors())
 
-
+// middleware eksempel 1
+const requestLogger = (request, response, next) => {
+    console.clear()
+    console.log('Method:', request.method)
+    console.log('Path:  ', request.path)
+    console.log('Body:  ', request.body)
+    console.log('---')
+    next()
+}
+app.use(express.json()) // https://www.geeksforgeeks.org/express-js-express-json-function/
+app.use(requestLogger)
 app.use(express.static('build'))
 
 // ==== 23/11/2022, 20.03  ==== get request to mongo DB p
@@ -50,6 +60,7 @@ app.get('/api/persons', (request, response) => {
 var morgan = require('morgan')
 const { watch } = require('fs')
 const { application } = require('express')
+const { brotliDecompressSync } = require('zlib')
 // definition af custom token som gør det muligt at modtage "body" i et POST
 // request
 morgan.token('body', (req, res) => JSON.stringify(req.body))
@@ -66,60 +77,60 @@ app.use(morgan(function (tokens, req, res) {
 )
 // ===============
 
-// middleware eksempel 1
-const requestLogger = (request, response, next) => {
-    console.clear()
-    console.log('Method:', request.method)
-    console.log('Path:  ', request.path)
-    console.log('Body:  ', request.body)
-    console.log('---')
-    next()
-}
-
-app.use(express.json())
-// app.use(requestLogger)
-
 app.get('/', (request, response) => {
     response.send('<h1>No static page found. Please build.</h1>')
 })
 
 app.get('/info', (request, response) => {
-    const payload = `
-    <p>Phonebook has info for ${persons.length} people</p>
-    <p>${new Date()}</p>`
-    response.send(payload)
+    console.log('GET made to /info')
+    Person.find({}).then(persons => {
+        response.send(`<p>Phonebook has info for ${persons.length} people</p>
+    <p>${new Date()}</p>`)
+    })
 })
 
-app.get('/api/persons/:id', (request, response) => {
-    console.log(`Get made to /api/notes/${request.params.id}`)
+    app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(request.params.id)
-      .then(person => {
-        if (person) {
-          response.json(person)
-        } else {
-          response.status(404).end()
-        }
-      })
-      .catch(error => {
-        console.log(error)
-        response.status(400).send({ error: 'malformatted id' })
-        console.error('error: malformatted id')
-      })
-  })
-
-app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    persons = persons.filter(person => person.id !== id)
-    response.status(204).end()
+        .then(person => {
+            if (person) {
+                response.json(person)
+            } else {
+                response.status(404).end()
+            }
+        })
+        .catch(error => next(error))
 })
 
-// ==== 24/11/2022, 21.37  ==== posting person, using mongoose model Person
-// i.e. constructor function for class "Person"
-app.post('/api/persons', (request, response) => {
+    app.delete('/api/persons/:id', (request, response, next) => {
+    Person.findByIdAndRemove(request.params.id)
+        .then(result => {
+            response.status(204)
+        })
+        .catch(error => next(error))
+})
+    // ==== 28/11/2022, 21.12  ==== update number of person
+    app.put('/api/persons/:id', (request, response, next) => {
+    console.log('put request to api/persons/', request.params.id)
+    const body = request.body
+    const person = {
+        name: body.name,
+        phone: body.phone
+    }
+    console.log(request.body, request.params.id)
+    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+        .then(updatedPerson => {
+            response.json(updatedPerson)
+        })
+        .catch(error => next(error))
+})
+
+    // ==== 24/11/2022, 21.37  ==== posting person, using mongoose model Person
+    // i.e. constructor function for class "Person"
+    app.post('/api/persons', (request, response) => {
     const body = request.body
     console.log(`POST made to /api/persons with ${request.body.name}
     and ${request.body.phone}`)
-    
+
     if (body.name === undefined) {
         return response.status(400).json({ error: 'content missing' })
     }
@@ -136,43 +147,33 @@ app.post('/api/persons', (request, response) => {
     })
 })
 
-// ==== 24/11/2022, 21.39  ==== app.post('/api/persons') Way of posting person entry before using mongoose
-// app.post('/api/persons', (request, response) => {
-//     const body = request.body
 
-//     const entry = {
-//         name: body.name,
-//         phone: body.phone,
-//         id: Math.ceil(Math.random() * 1000),
-//         timestamp: new Date
-//     }
-//     if (!entry.name || !entry.phone) {
-//         response.status(400).json({
-//             error: 'content missing'
-//         })
-//     }
-//     if (persons.find(person => person.name === entry.name)) {
-//         console.log('person already exists!')
-//         response.status(400).json({
-//             error: 'name already exists'
-//         })
-//     } else {
-//         persons = persons.concat(entry)
-//         response.json(persons)
-//     }
-
-// })
-
-// middleware eksempel 2
-// fanger requests der ikke rammer en af vores routes ovf.^
-// og smider en 404 fejl
-
-const unknownEndpoint = (request, response) => {
+    const unknownEndpoint = (request, response) => {
     response.status(404).send({ error: 'unknown endpoint' })
     console.log('unknown endpoint')
 }
 
 app.use(unknownEndpoint)
+
+// error handler bliver kaldt af next(error) funktionerne, i de 
+// forskellige route-handlers ovf. Hvis next() kaldes uden parameter
+// vil den bare sende videre til næste route eller middleware - men med
+// parameter bliver det en errorhandler
+const errorHandler = (error, request, response, next) => {
+    // ==== 24/11/2022, 23.43  ==== https://expressjs.com/en/guide/error-handling.html
+    // ==== 28/11/2022, 20.58  ==== "Moving error handling into middleware" - https://fullstackopen.com/en/part3/saving_data_to_mongo_db
+    console.error(error.message)
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }
+
+    next(error)
+}
+
+// ==== 24/11/2022, 23.41  ==== !!
+// this has to be the last loaded middleware.
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 

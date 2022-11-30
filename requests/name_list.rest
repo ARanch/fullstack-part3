@@ -1,5 +1,5 @@
 # request oo bounds, should be 404
-GET http://localhost:3001/api/persons/995
+GET http://localhost:3001/api/persons/6377ada6454ba9a221ffd97a
 Content-Type: application/json
 
 ###
@@ -9,7 +9,7 @@ Content-Type: application/json
 
 ###
 # delete request
-DELETE http://localhost:3001/api/persons/1
+DELETE http://localhost:3001/api/persons/637fed4616a75b89af32ec50
 Content-Type: application/json
 
 ###
@@ -30,4 +30,14 @@ Content-Type: application/json
 {
     "name": "Andreas R",
     "number": "27 27 51 51"
+}
+
+###
+# update person
+PUT http://localhost:3001/api/persons/
+Content-Type: application/json
+
+{
+    "name": "Flemse",
+    "number": "123"
 }
