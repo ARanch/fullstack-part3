@@ -14,6 +14,8 @@ const addEntry = (newObject) => {
     console.log(`entry added with name: ${newObject.name} and phone ${newObject.phone}`)
     const request = axios
         .post(baseUrl, newObject)
+        // .catch(error => console.log(error.response.data.error))
+
     return request.then(response => response.data)
 }
 

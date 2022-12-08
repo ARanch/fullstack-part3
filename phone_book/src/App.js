@@ -58,9 +58,9 @@ const App = () => {
           id: index
         }
         entries.updateEntry(index, updatedEntry).catch(error => {
-          console.log(error)
+          console.log(error.response.data.error)
           setMessageType('overlayError')
-          setMessage(`Information on ${newName} has already been removed from server!`)
+          setMessage(error.response.data.error)
         }) //inserts new phone number at index corresponding to duplicate
         const newPersons = persons.map(person =>
           person.name === newName
@@ -89,6 +89,7 @@ const App = () => {
         resetOverlay(overlayTimeout)
       }
       )
+      .catch(error => console.log(error.response.data.error))
     }
   }
   const deleteEntry = (id) => {
