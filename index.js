@@ -126,7 +126,7 @@ app.put('/api/persons/:id', (request, response, next) => {
 
 // ==== 24/11/2022, 21.37  ==== posting person, using mongoose model Person
 // i.e. constructor function for class "Person"
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     const body = request.body
     console.log(`POST made to /api/persons with ${request.body.name}
     and ${request.body.phone}`)
@@ -147,7 +147,7 @@ app.post('/api/persons', (request, response) => {
             console.log('person saved...')
             response.json(savedPerson)
         })
-        .catch(error => next(error))
+        .catch(error => errorHandler(error, request, response, next))
 })
 
 
@@ -172,8 +172,11 @@ const errorHandler = (error, request, response, next) => {
     } else if (error.name === 'ValidationError') {
         return response.status(400).json({ error: error.message })
     }
+    if (error) {
 
-    next(error)
+        return next(error)
+    }
+
 }
 
 // ==== 24/11/2022, 23.41  ==== !!
