@@ -117,11 +117,13 @@ app.put('/api/persons/:id', (request, response, next) => {
         phone: body.phone
     }
     console.log(request.body, request.params.id)
-    Person.findByIdAndUpdate(request.params.id, person, { new: true })
-        .then(updatedPerson => {
-            response.json(updatedPerson)
-        })
-        .catch(error => next(error))
+    Person.findByIdAndUpdate(
+        request.params.id,
+        person,
+        { new: true, runValidators: true, context: 'query'  } // mongoose schema validation køres ikke default af findByIdAndUpdate, derfor tilføres det her
+    ).then(updatedPerson => {
+        response.json(updatedPerson)
+    }).catch(error => next(error))
 })
 
 // ==== 24/11/2022, 21.37  ==== posting person, using mongoose model Person
@@ -147,7 +149,7 @@ app.post('/api/persons', (request, response, next) => {
             console.log('person saved...')
             response.json(savedPerson)
         })
-        .catch(error => errorHandler(error, request, response, next))
+        .catch(error => next(error)) // calls the errorHandler function, following would also work: errorHandler(error, request, response, next
 })
 
 
