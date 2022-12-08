@@ -17,9 +17,18 @@ mongoose.connect(url)
 mongoose.connect(url)
 // ==== 18/11/2022, 15.06  ==== mongoose schema for forming note
 const personSchema = new mongoose.Schema({
-    name: String,
-    phone: String,
-})
+    name: {
+      type: String,
+      required: true
+    },
+    phone: {
+      type: String,
+      minLength: 8,
+      required: true
+    }
+  })
+  // name: String, //simpel måde at definere validation, hvor det ikke er et objekt
+  // phone: String 
 // ==== 23/11/2022, 20.23  ==== modified schema, removing mongo ID and version
 personSchema.set('toJSON', {
     transform: (document, returnedObject) => {

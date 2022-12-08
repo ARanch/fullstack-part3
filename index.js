@@ -89,7 +89,7 @@ app.get('/info', (request, response) => {
     })
 })
 
-    app.get('/api/persons/:id', (request, response, next) => {
+app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(request.params.id)
         .then(person => {
             if (person) {
@@ -101,15 +101,15 @@ app.get('/info', (request, response) => {
         .catch(error => next(error))
 })
 
-    app.delete('/api/persons/:id', (request, response, next) => {
+app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndRemove(request.params.id)
         .then(result => {
             response.status(204)
         })
         .catch(error => next(error))
 })
-    // ==== 28/11/2022, 21.12  ==== update number of person
-    app.put('/api/persons/:id', (request, response, next) => {
+// ==== 28/11/2022, 21.12  ==== update number of person
+app.put('/api/persons/:id', (request, response, next) => {
     console.log('put request to api/persons/', request.params.id)
     const body = request.body
     const person = {
@@ -124,12 +124,13 @@ app.get('/info', (request, response) => {
         .catch(error => next(error))
 })
 
-    // ==== 24/11/2022, 21.37  ==== posting person, using mongoose model Person
-    // i.e. constructor function for class "Person"
-    app.post('/api/persons', (request, response) => {
+// ==== 24/11/2022, 21.37  ==== posting person, using mongoose model Person
+// i.e. constructor function for class "Person"
+app.post('/api/persons', (request, response) => {
     const body = request.body
     console.log(`POST made to /api/persons with ${request.body.name}
     and ${request.body.phone}`)
+
 
     if (body.name === undefined) {
         return response.status(400).json({ error: 'content missing' })
@@ -141,14 +142,16 @@ app.get('/info', (request, response) => {
 
     console.log('Person is:', person)
 
-    person.save().then(savedPerson => {
-        console.log('person saved...')
-        response.json(savedPerson)
-    })
+    person.save()
+        .then(savedPerson => {
+            console.log('person saved...')
+            response.json(savedPerson)
+        })
+        .catch(error => next(error))
 })
 
 
-    const unknownEndpoint = (request, response) => {
+const unknownEndpoint = (request, response) => {
     response.status(404).send({ error: 'unknown endpoint' })
     console.log('unknown endpoint')
 }
@@ -166,6 +169,8 @@ const errorHandler = (error, request, response, next) => {
 
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' })
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message })
     }
 
     next(error)
