@@ -1,11 +1,9 @@
 // ==== 24/11/2022, 21.02  ==== dotenv enables using env variables in .env file
 require('dotenv').config()
-const path = require('path')
 const express = require('express')
 const app = express()
 console.clear()
 const Person = require('./models/person')
-
 
 const cors = require('cors')
 app.use(cors())
@@ -58,12 +56,9 @@ app.get('/api/persons', (request, response) => {
 // https://github.com/expressjs/morgan#creating-new-tokens
 // app.use(morgan('tiny'))
 var morgan = require('morgan')
-const { watch } = require('fs')
-const { application } = require('express')
-const { brotliDecompressSync } = require('zlib')
 // definition af custom token som gør det muligt at modtage "body" i et POST
 // request
-morgan.token('body', (req, res) => JSON.stringify(req.body))
+morgan.token('body', (req) => JSON.stringify(req.body))
 app.use(morgan(function (tokens, req, res) {
     return [
         tokens.method(req, res),
@@ -105,6 +100,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndRemove(request.params.id)
         .then(result => {
             response.status(204)
+            console.log(result)
         })
         .catch(error => next(error))
 })
@@ -120,7 +116,7 @@ app.put('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndUpdate(
         request.params.id,
         person,
-        { new: true, runValidators: true, context: 'query'  } // mongoose schema validation køres ikke default af findByIdAndUpdate, derfor tilføres det her
+        { new: true, runValidators: true, context: 'query' } // mongoose schema validation køres ikke default af findByIdAndUpdate, derfor tilføres det her
     ).then(updatedPerson => {
         response.json(updatedPerson)
     }).catch(error => next(error))
@@ -160,7 +156,7 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-// error handler bliver kaldt af next(error) funktionerne, i de 
+// error handler bliver kaldt af next(error) funktionerne, i de
 // forskellige route-handlers ovf. Hvis next() kaldes uden parameter
 // vil den bare sende videre til næste route eller middleware - men med
 // parameter bliver det en errorhandler

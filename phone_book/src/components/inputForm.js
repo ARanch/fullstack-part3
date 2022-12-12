@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 const InputForm = ({ submitHandler, nameHandler, phoneHandler }) => {
     return (
         <div>

@@ -1,17 +1,9 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import Filter from './components/filter'
 import InputForm from './components/inputForm'
 import List from './components/list'
 import entries from './services/entries'
 import Overlay from './components/overlay'
-//TO dos for ex 2.15-2.18
-// √ add notes to a json server
-// √ extract code that handles backend to separate module under /services
-// √ 2.17 make it possible to delete users, 
-// confirm action with window.confirm method
-// use http delete request. no data is sent with request
-// make it possible to change phone number of entry via PUT
 
 const App = () => {
   useEffect(() => {
@@ -25,7 +17,7 @@ const App = () => {
   const [message, setMessage] = useState(null)
   const [messageType, setMessageType] = useState('overlayBasic')
 
-  const overlayTimeout = 2000
+  const overlayTimeout = 4000
   const resetOverlay = (timeout) => {
     setTimeout(() => {
       setMessage(null)
@@ -44,6 +36,7 @@ const App = () => {
   }
 
   const saveName = (event) => {
+    console.log('SAVE NAME!!!!')
     event.preventDefault()
     const { duplicate, index } = checkDuplicates(persons, newName)
     console.log('persons: ', persons)
@@ -83,21 +76,25 @@ const App = () => {
         name: newName,
         phone: newPhone
       }).then(() => {
+        console.log('ADD ENTRY .THEN!')
         entries.getEntries().then(response => setPersons(response))
         setMessageType('overlaySuccess')
         setMessage(`"${newName}" added!`)
         resetOverlay(overlayTimeout)
       }
       )
-      .catch(error => console.log(error.response.data.error))
+        .catch(error => console.log(error.response.data.error))
     }
   }
   const deleteEntry = (id) => {
     const name = persons.find(person => person.id === id).name
     if (window.confirm(`Do you really want to delete ${name}`)) {
       entries.deleteEntry(id).then(() => {
+        console.log('app.deletEntry().then() fired!')
         entries.getEntries().then(response => setPersons(response))
       }).then(() => {
+        // THIS DOESN'T FIRE!
+        console.log('SETPERSONS THEN!!!!')
         setMessageType('overlayError')
         setMessage(`"${name}" removed!`)
         resetOverlay(overlayTimeout)
@@ -120,9 +117,9 @@ const App = () => {
         console.log('no diplicate found. Continue...')
         return true
       }
-      duplicate ? console.log('A duplicate was found, ', name) : console.log('No duplicates found')
     }
-    )
+    )    
+    duplicate ? console.log('A duplicate was found, ', name) : console.log('No duplicates found')
     return { duplicate, index }
   }
   // breakout into: filter, input form, and phonebook list

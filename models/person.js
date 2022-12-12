@@ -7,29 +7,38 @@ const mongoose = require('mongoose')
 const url = process.env.MONGODB_URI
 console.log('connecting to', url)
 mongoose.connect(url)
-  .then(result => {
-    console.log('connected to MongoDB')
-  })
-  .catch((error) => {
-    console.log('error connecting to MongoDB:', error.message)
-  })
+    .then(result => {
+        console.log('connected to MongoDB')
+        console.log(result)
+    })
+    .catch((error) => {
+        console.log('error connecting to MongoDB:', error.message)
+    })
 // ==== 23/11/2022, 20.05  ==== CONNECTING to mongo here, missed that in first implementation
 mongoose.connect(url)
 // ==== 18/11/2022, 15.06  ==== mongoose schema for forming note
 const personSchema = new mongoose.Schema({
     name: {
-      type: String,
-      minLength: 3,
-      required: true
+        type: String,
+        minLength: 3,
+        required: true
     },
     phone: {
-      type: String,
-      minLength: 8,
-      required: true
+        type: String,
+        minLength: 8,
+        required: true,
+        validate: {
+            validator: (value) => {
+                if (/\d{2}-\d{6}/.test(value)) { return true } // required by task
+                else if (/\d{3}-\d{6}/.test(value)) { return true } // required by task
+                else if (/\d{8}/.test(value)) { return true } // danish
+                else { return false }
+            }
+        }
     }
-  })
-  // name: String, //simpel måde at definere validation, hvor det ikke er et objekt
-  // phone: String 
+})
+// name: String, //simpel måde at definere validation, hvor det ikke er et objekt
+// phone: String
 // ==== 23/11/2022, 20.23  ==== modified schema, removing mongo ID and version
 personSchema.set('toJSON', {
     transform: (document, returnedObject) => {
@@ -42,7 +51,7 @@ personSchema.set('toJSON', {
     }
 })
 // ==== 18/11/2022, 15.07  ==== mongoose model 'person'
-const Person = mongoose.model('Person', personSchema)
+// const Person = mongoose.model('Person', personSchema)
 
 // variables like "mongoose" or "url" are not accessible to the user of
 // the module!

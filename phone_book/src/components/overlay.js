@@ -1,6 +1,5 @@
 import React from "react"
-const Overlay = ({ text, messageType}) => {
-    const messageClass = `"${messageType}"`
+const Overlay = ({ text, messageType }) => {
     return (
         <div className={messageType}>
             <div>
